@@ -30,13 +30,13 @@ function LoginForm() {
     }
 
     const result = await signIn('credentials', {
-      email: email.trim(),
+      email: email.trim().toLowerCase(),
       password,
       redirect: false,
     });
 
     if (result?.ok) {
-      router.push('/dashboard');
+      window.location.href = '/dashboard';
     } else {
       if (result?.error && result.error !== 'CredentialsSignin') {
         setError(result.error);
