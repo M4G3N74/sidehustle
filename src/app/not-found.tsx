@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Home, ArrowLeft } from 'lucide-react';
 
 export default function NotFound() {
@@ -8,13 +9,20 @@ export default function NotFound() {
       <div className="absolute top-1/4 -left-20 w-64 h-64 bg-purple-500/20 rounded-full blur-[100px]" />
       <div className="absolute bottom-1/4 -right-20 w-64 h-64 bg-indigo-500/20 rounded-full blur-[100px]" />
 
-      <div className="card max-w-md w-full p-8 text-center relative">
-        <div className="text-8xl font-bold gradient-text mb-2">404</div>
-        <h1 className="text-2xl font-bold mb-2">Page Not Found</h1>
+      <div className="card w-full max-w-4xl p-8 text-center relative">
+        <div className="relative w-full max-w-lg aspect-square mx-auto mb-6">
+          <Image 
+            src="/404.jpg" 
+            alt="404" 
+            fill 
+            className="object-contain"
+          />
+        </div>
+        {/* <h1 className="text-2xl font-bold mb-2">Page Not Found</h1>
         <p className="text-white/60 mb-8 text-sm">
           The page you&apos;re looking for doesn&apos;t exist or has been moved. 
           Let&apos;s get you back on track.
-        </p>
+        </p> */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             href="/"
