@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import UserManagementClient from './UserManagementClient';
 
 export const metadata = {
-  title: 'Manage Users - HustleTrack',
+  title: 'Manage Users - streethustler',
 };
 
 export default async function UsersPage() {

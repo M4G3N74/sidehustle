@@ -40,7 +40,7 @@ export default function LandingContent({ initialStats }: LandingContentProps) {
             <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1.5">
               <Image src="/logo.png" alt="Logo" width={40} height={40} className="object-contain w-full h-full" />
             </div>
-            <span className="text-xl font-bold gradient-text">HustleTrack</span>
+            <span className="text-xl font-bold gradient-text">streethustler</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-white/70 hover:text-white transition-colors">Sign In</Link>

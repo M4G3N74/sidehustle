@@ -51,9 +51,9 @@ function LoginForm() {
     <div className="min-h-screen flex items-center justify-center p-4 page-fade-in">
       <div className="card w-full max-w-md p-8">
         <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-white flex items-center justify-center p-2">
-          <Image src="/logo.png" alt="HustleTrack" width={64} height={64} className="object-contain w-full h-full" />
+          <Image src="/logo.png" alt="streethustler" width={64} height={64} className="object-contain w-full h-full" />
         </div>
-        <h1 className="text-2xl font-bold text-center mb-1 gradient-text">HustleTrack</h1>
+        <h1 className="text-2xl font-bold text-center mb-1 gradient-text">streethustler</h1>
         <p className="text-center text-white/60 mb-8">Track your side hustle income</p>
 
         <form action={handleSubmit} className="space-y-5">

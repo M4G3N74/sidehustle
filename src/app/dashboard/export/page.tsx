@@ -63,11 +63,11 @@ export default function ExportPage() {
       
       doc.setFontSize(20);
       doc.setTextColor(124, 58, 237);
-      doc.text('HustleTrack', 28, 20);
+      doc.text('streethustler', 28, 20);
     } catch (e) {
       doc.setFontSize(20);
       doc.setTextColor(124, 58, 237);
-      doc.text('HustleTrack', 14, 22);
+      doc.text('streethustler', 14, 22);
     }
     
     doc.setFontSize(12);
@@ -132,7 +132,7 @@ export default function ExportPage() {
     doc.setTextColor(150);
     doc.text(`Generated on ${format(now, 'PPpp')}`, 14, (doc as any).internal.pageSize.height - 10);
 
-    doc.save(`hustletrack-${period}-${format(now, 'yyyy-MM-dd')}.pdf`);
+    doc.save(`streethustler-${period}-${format(now, 'yyyy-MM-dd')}.pdf`);
     setGenerating(false);
   };
 

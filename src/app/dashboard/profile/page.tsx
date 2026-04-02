@@ -135,7 +135,7 @@ export default function ProfilePage() {
       const pdf = new jsPDF();
       pdf.setFontSize(20);
       pdf.setTextColor(124, 58, 237);
-      pdf.text('HustleTrack - Complete Report', 14, 22);
+      pdf.text('streethustler - Complete Report', 14, 22);
       pdf.setFontSize(10);
       pdf.setTextColor(100);
       pdf.text(`Generated: ${format(now, 'PPpp')}`, 14, 30);
@@ -170,7 +170,7 @@ export default function ProfilePage() {
       zip.file('report.pdf', pdf.output('blob'));
 
       const workbook = new ExcelJS.Workbook();
-      workbook.creator = 'HustleTrack';
+      workbook.creator = 'streethustler';
       workbook.created = now;
 
       const incomeSheet = workbook.addWorksheet('Income');
@@ -228,7 +228,7 @@ export default function ProfilePage() {
       const url = URL.createObjectURL(zipBuffer);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `hustletrack-export-${format(now, 'yyyy-MM-dd')}.zip`;
+      a.download = `streethustler-export-${format(now, 'yyyy-MM-dd')}.zip`;
       a.click();
       URL.revokeObjectURL(url);
       toast.success('Export downloaded successfully');

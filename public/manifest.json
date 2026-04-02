@@ -1,6 +1,6 @@
 {
-  "name": "HustleTrack",
-  "short_name": "Side-Hustle",
+  "name": "streethustler",
+  "short_name": "streethustler",
   "description": "Track your side hustle income, set goals, and watch your wealth grow.",
   "start_url": "/dashboard",
   "display": "standalone",

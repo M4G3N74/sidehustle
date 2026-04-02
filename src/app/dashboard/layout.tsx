@@ -75,7 +75,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center overflow-hidden p-1">
             <Image src="/logo.png" alt="Logo" width={32} height={32} className="object-contain w-full h-full" />
           </div>
-          <span className="font-bold text-lg">HustleTrack</span>
+          <span className="font-bold text-lg">streethustler</span>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/dashboard/export" className="p-2" aria-label="Export data">
@@ -99,7 +99,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center overflow-hidden p-1">
               <Image src="/logo.png" alt="Logo" width={40} height={40} className="object-contain w-full h-full" />
             </div>
-            <span className="font-bold text-xl">HustleTrack</span>
+            <span className="font-bold text-xl">streethustler</span>
           </div>
         </div>
         <nav className="p-4 space-y-2">
@@ -140,7 +140,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center overflow-hidden p-1">
               <Image src="/logo.png" alt="Logo" width={40} height={40} className="object-contain w-full h-full" />
             </div>
-            <span className="font-bold text-xl gradient-text">HustleTrack</span>
+            <span className="font-bold text-xl gradient-text">streethustler</span>
           </div>
         </div>
         <nav className="flex-1 p-4 space-y-2">

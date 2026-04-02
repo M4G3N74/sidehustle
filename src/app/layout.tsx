@@ -6,12 +6,12 @@ import { ToastProvider } from "@/components/ToastContext";
 
 
 export const metadata: Metadata = {
-  title: "HustleTrack - Side Hustle Income Tracker",
+  title: "streethustler - Side Hustle Income Tracker",
   description: "Track your side hustle income, set goals, and watch your wealth grow. Beautiful analytics and PDF reports.",
   keywords: ["income tracker", "side hustle", "finance", "money management", "goals"],
-  authors: [{ name: "HustleTrack" }],
+  authors: [{ name: "streethustler" }],
   openGraph: {
-    title: "HustleTrack - Side Hustle Income Tracker",
+    title: "streethustler - Side Hustle Income Tracker",
     description: "Track your side hustle income, set goals, and watch your wealth grow.",
     type: "website",
   },
