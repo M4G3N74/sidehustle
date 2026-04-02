@@ -37,8 +37,8 @@ export default function LandingContent({ initialStats }: LandingContentProps) {
       <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[#0f0c29]/80 border-b border-white/5">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1.5">
-              <Image src="/logo.png" alt="Logo" width={40} height={40} className="object-contain w-full h-full" />
+            <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center p-1.5">
+              <Image src="/logo.png" alt="Logo" width={56} height={56} className="object-contain w-full h-full" />
             </div>
             <span className="text-xl font-bold gradient-text">streethustler</span>
           </div>
@@ -82,10 +82,10 @@ export default function LandingContent({ initialStats }: LandingContentProps) {
           <div className="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto">
             <div>
               <div className="text-3xl font-bold gradient-text">
-                ZMW {initialStats.totalIncome >= 1000000 
-                  ? `${(initialStats.totalIncome / 1000000).toFixed(1)}M` 
+                K{initialStats.totalIncome >= 1000000 
+                  ? `${(initialStats.totalIncome / 1000000).toFixed(1)}000,000` 
                   : initialStats.totalIncome >= 1000 
-                    ? `${Math.round(initialStats.totalIncome / 1000)}K` 
+                    ? `${Math.round(initialStats.totalIncome / 1000)},000` 
                     : initialStats.totalIncome}
               </div>
               <div className="text-white/40 text-sm">Total Tracked</div>

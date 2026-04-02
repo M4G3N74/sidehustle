@@ -63,7 +63,7 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
             </div>
             <span className="text-white/60 text-sm">This Month</span>
           </div>
-          <p className="text-2xl lg:text-3xl font-bold font-tabular">ZMW {data.thisMonthIncome.toLocaleString()}</p>
+          <p className="text-2xl lg:text-3xl font-bold font-tabular">K {data.thisMonthIncome.toLocaleString()}</p>
           {percentChange !== 0 && (
             <div className={`flex items-center gap-1 text-sm mt-2 ${percentChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
               {percentChange >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
@@ -80,7 +80,7 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
             </div>
             <span className="text-white/60 text-sm">All Time</span>
           </div>
-          <p className="text-2xl lg:text-3xl font-bold font-tabular">ZMW {data.allTimeIncome.toLocaleString()}</p>
+          <p className="text-2xl lg:text-3xl font-bold font-tabular">K {data.allTimeIncome.toLocaleString()}</p>
           <p className="text-white/40 text-sm mt-2">Total earned</p>
         </div>
 
@@ -91,7 +91,7 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
             </div>
             <span className="text-white/60 text-sm">Last Month</span>
           </div>
-          <p className="text-2xl lg:text-3xl font-bold font-tabular">ZMW {data.lastMonthIncome.toLocaleString()}</p>
+          <p className="text-2xl lg:text-3xl font-bold font-tabular">K {data.lastMonthIncome.toLocaleString()}</p>
           <p className="text-white/40 text-sm mt-2">Previous month</p>
         </div>
 
@@ -103,7 +103,7 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
             <span className="text-white/60 text-sm">Avg/Month</span>
           </div>
           <p className="text-2xl lg:text-3xl font-bold font-tabular">
-            ${data.monthlyData.length > 0 
+            K{data.monthlyData.length > 0 
               ? Math.round(data.allTimeIncome / data.monthlyData.length).toLocaleString() 
               : '0'}
           </p>
@@ -120,7 +120,7 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
               </div>
               <div>
                 <p className="text-white/60 text-sm">Recurring Income</p>
-                <p className="text-2xl font-bold text-green-400 font-tabular">ZMW {data.recurringIncome.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-green-400 font-tabular">K {data.recurringIncome.toLocaleString()}</p>
               </div>
             </div>
             <Link href="/dashboard/goals" className="text-sm text-green-400 hover:underline">
@@ -143,8 +143,8 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
               </div>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold font-tabular">ZMW {data.thisMonthIncome.toLocaleString()}</p>
-              <p className="text-white/50 text-sm">of ZMW {data.currentGoal.targetAmount.toLocaleString()}</p>
+              <p className="text-2xl font-bold font-tabular">K {data.thisMonthIncome.toLocaleString()}</p>
+              <p className="text-white/50 text-sm">of K {data.currentGoal.targetAmount.toLocaleString()}</p>
             </div>
           </div>
           <div className="progress-bar h-3">
@@ -155,7 +155,7 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
           </div>
           <div className="flex justify-between items-center mt-2">
             <p className="text-white/50 text-sm">{goalProgress.toFixed(0)}% complete</p>
-            <p className="text-white/50 text-sm">ZMW {(data.currentGoal.targetAmount - data.thisMonthIncome).toLocaleString()} remaining</p>
+            <p className="text-white/50 text-sm">K {(data.currentGoal.targetAmount - data.thisMonthIncome).toLocaleString()} remaining</p>
           </div>
           {goalProgress >= 100 && (
             <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/50 text-center">
@@ -192,7 +192,7 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1b4b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
                     labelStyle={{ color: '#fff' }}
-                    formatter={(value) => `ZMW ${Number(value).toLocaleString()}`}
+                    formatter={(value) => `K ${Number(value).toLocaleString()}`}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -202,7 +202,7 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
                 <div key={entry.name} className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
                   <span className="text-sm">{entry.name}</span>
-                  <span className="text-sm font-medium">ZMW {entry.value.toLocaleString()}</span>
+                  <span className="text-sm font-medium">K {entry.value.toLocaleString()}</span>
                 </div>
               ))}
             </div>
@@ -236,12 +236,12 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => `ZMW ${value}`}
+                    tickFormatter={(value) => `K ${value}`}
                   />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1b4b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
                     labelStyle={{ color: '#fff' }}
-                    formatter={(value) => `ZMW ${Number(value).toLocaleString()}`}
+                    formatter={(value) => `K ${Number(value).toLocaleString()}`}
                   />
                   <Area type="monotone" dataKey="amount" stroke="#7c3aed" strokeWidth={2} fill="url(#colorAmount)" />
                 </AreaChart>
@@ -275,7 +275,7 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
                   </p>
                 </div>
               </div>
-              <span className="text-green-400 font-semibold text-lg font-tabular">+ZMW {income.amount.toLocaleString()}</span>
+              <span className="text-green-400 font-semibold text-lg font-tabular">+K {income.amount.toLocaleString()}</span>
             </div>
           ))}
           {data.recentIncomes.length === 0 && (

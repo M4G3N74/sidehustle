@@ -73,7 +73,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
           <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center overflow-hidden p-1">
-            <Image src="/logo.png" alt="Logo" width={32} height={32} className="object-contain w-full h-full" />
+            <Image src="/logo.png" alt="Logo" width={48} height={48} className="object-contain w-full h-full" />
           </div>
           <span className="font-bold text-lg">streethustler</span>
         </div>
@@ -97,7 +97,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-4 border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center overflow-hidden p-1">
-              <Image src="/logo.png" alt="Logo" width={40} height={40} className="object-contain w-full h-full" />
+              <Image src="/logo.png" alt="Logo" width={56} height={56} className="object-contain w-full h-full" />
             </div>
             <span className="font-bold text-xl">streethustler</span>
           </div>
@@ -138,7 +138,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center overflow-hidden p-1">
-              <Image src="/logo.png" alt="Logo" width={40} height={40} className="object-contain w-full h-full" />
+              <Image src="/logo.png" alt="Logo" width={56} height={56} className="object-contain w-full h-full" />
             </div>
             <span className="font-bold text-xl gradient-text">streethustler</span>
           </div>
