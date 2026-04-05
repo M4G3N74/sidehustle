@@ -39,6 +39,48 @@ export async function addIncome(formData: FormData) {
   return { success: true };
 }
 
+export async function updateIncome(id: number, formData: FormData) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return { error: 'Unauthorized' };
+
+  const userId = parseInt(session.user.id);
+  const source = (formData.get('source') as string)?.trim();
+  const amount = parseFloat(formData.get('amount') as string);
+  const category = (formData.get('category') as string)?.trim();
+  const description = (formData.get('description') as string)?.trim();
+  const date = formData.get('date') as string;
+
+  const validation = validateIncomeInput({ source, amount, date, category, description });
+  if (!validation.valid) return { error: validation.error };
+
+  await db.update(incomes)
+    .set({
+      source,
+      amount,
+      category: category || null,
+      description: description || null,
+      date: new Date(date),
+    })
+    .where(and(eq(incomes.id, id), eq(incomes.userId, userId)));
+
+  revalidatePath('/dashboard');
+  return { success: true };
+}
+
+export async function deleteIncome(id: number) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return { error: 'Unauthorized' };
+
+  const userId = parseInt(session.user.id);
+
+  await db.delete(incomes).where(
+    and(eq(incomes.id, id), eq(incomes.userId, userId))
+  );
+
+  revalidatePath('/dashboard');
+  return { success: true };
+}
+
 export async function setGoal(formData: FormData) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return { error: 'Unauthorized' };

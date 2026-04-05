@@ -257,9 +257,15 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
             <span className="w-2 h-2 rounded-full bg-pink-500"></span>
             Recent Activity
           </h3>
-          <Link href="/dashboard/add" className="text-sm text-purple-400 hover:text-purple-300">
-            + Add Income
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard/income" className="text-sm text-white/50 hover:text-white transition-colors">
+              Manage All
+            </Link>
+            <span className="text-white/10 text-xs">|</span>
+            <Link href="/dashboard/add" className="text-sm text-purple-400 hover:text-purple-300 transition-colors font-medium">
+              + Add Record
+            </Link>
+          </div>
         </div>
         <div className="space-y-2">
           {data.recentIncomes.slice(0, 8).map((income) => (

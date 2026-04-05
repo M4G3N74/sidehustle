@@ -103,6 +103,8 @@ const typeDefs = `#graphql
 
   type Mutation {
     addIncome(source: String!, amount: Float!, category: String, description: String, date: String!): Boolean!
+    updateIncome(id: Int!, source: String!, amount: Float!, category: String, description: String, date: String!): Boolean!
+    deleteIncome(id: Int!): Boolean!
     setGoal(title: String!, targetAmount: Float!): MutationResult!
     deleteGoal(id: Int!): Boolean!
     addRecurring(name: String!, amount: Float!, category: String): Boolean!
@@ -332,6 +334,40 @@ const resolvers = {
         description: args.description?.trim() || null,
         date: new Date(args.date),
       });
+      return true;
+    },
+
+    updateIncome: async (_: unknown, args: { id: number; source: string; amount: number; category?: string; description?: string; date: string }) => {
+      const userId = await requireAuth();
+
+      const validation = validateIncomeInput({
+        source: args.source,
+        amount: args.amount,
+        date: args.date,
+        category: args.category,
+        description: args.description,
+      });
+      if (!validation.valid) throw new Error(validation.error);
+
+      // Ownership check: only update if it belongs to the current user
+      await db.update(incomes)
+        .set({
+          source: args.source.trim(),
+          amount: args.amount,
+          category: args.category?.trim() || null,
+          description: args.description?.trim() || null,
+          date: new Date(args.date),
+        })
+        .where(and(eq(incomes.id, args.id), eq(incomes.userId, userId)));
+      return true;
+    },
+
+    deleteIncome: async (_: unknown, args: { id: number }) => {
+      const userId = await requireAuth();
+      // Ownership check: only delete if it belongs to the current user
+      await db.delete(incomes).where(
+        and(eq(incomes.id, args.id), eq(incomes.userId, userId))
+      );
       return true;
     },
 

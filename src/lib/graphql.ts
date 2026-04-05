@@ -156,6 +156,18 @@ export const MUTATIONS = {
     }
   `,
 
+  UPDATE_INCOME: `
+    mutation UpdateIncome($id: Int!, $source: String!, $amount: Float!, $category: String, $description: String, $date: String!) {
+      updateIncome(id: $id, source: $source, amount: $amount, category: $category, description: $description, date: $date)
+    }
+  `,
+
+  DELETE_INCOME: `
+    mutation DeleteIncome($id: Int!) {
+      deleteIncome(id: $id)
+    }
+  `,
+
   SET_GOAL: `
     mutation SetGoal($title: String!, $targetAmount: Float!) {
       setGoal(title: $title, targetAmount: $targetAmount) {

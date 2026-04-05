@@ -47,19 +47,29 @@ export const authOptions: NextAuthOptions = {
           where: eq(users.email, credentials.email),
         });
 
-        if (!user || !user.password) {
+        if (!user) {
+          console.log(`[AUTH] Login failed: User not found (${credentials.email})`);
+          return null;
+        }
+
+        if (!user.password) {
+          console.log(`[AUTH] Login failed: No password set for user (${credentials.email})`);
           return null;
         }
 
         if (user.isBanned) {
+          console.log(`[AUTH] Login failed: User is banned (${credentials.email})`);
           throw new Error('Your account has been suspended.');
         }
 
         const isValid = await bcrypt.compare(credentials.password, user.password);
 
         if (!isValid) {
+          console.log(`[AUTH] Login failed: Password mismatch for user (${credentials.email})`);
           return null;
         }
+
+        console.log(`[AUTH] Login successful for user: ${user.email}`);
 
         return {
           id: user.id.toString(),
