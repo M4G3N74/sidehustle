@@ -41,12 +41,17 @@ export async function middleware(request: NextRequest) {
   }
 
   // For all other paths (dashboard, api/graphql), require auth
+  if (!process.env.NEXTAUTH_SECRET) {
+    console.error('[MIDDLEWARE] Critical: NEXTAUTH_SECRET is missing!');
+  }
+
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
   });
 
   if (!token) {
+    console.log(`[MIDDLEWARE] Access denied for path: ${pathname}. No token found.`);
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);

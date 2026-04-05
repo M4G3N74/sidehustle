@@ -36,6 +36,7 @@ function LoginForm() {
     });
 
     if (result?.ok) {
+      router.refresh();
       window.location.href = '/dashboard';
     } else {
       if (result?.error && result.error !== 'CredentialsSignin') {
