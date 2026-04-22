@@ -1,13 +1,22 @@
 'use client';
 
 import { format } from 'date-fns';
-import { TrendingUp, TrendingDown, DollarSign, Target, Wallet, Clock, Repeat } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Target, Wallet, Clock, Repeat, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, AreaChart, Area } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis } from 'recharts';
 
 interface Income {
   id: number;
   source: string;
+  amount: number;
+  category: string | null;
+  description: string | null;
+  date: Date;
+}
+
+interface Spending {
+  id: number;
+  name: string;
   amount: number;
   category: string | null;
   description: string | null;
@@ -31,7 +40,10 @@ interface DashboardData {
   thisMonthIncome: number;
   lastMonthIncome: number;
   allTimeIncome: number;
+  thisMonthSpending: number;
+  lastMonthSpending: number;
   recentIncomes: Income[];
+  recentSpendings: Spending[];
   currentGoal: Goal | null | undefined;
   incomeBySource: { source: string; amount: number }[];
   monthlyData: { source: string; amount: number }[];
@@ -52,16 +64,17 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
 
   const pieData = data.incomeBySource?.map((item) => ({ name: item.source, value: item.amount })) || [];
   const barData = data.monthlyData?.map((item) => ({ month: item.source, amount: item.amount })) || [];
+  const netThisMonth = data.thisMonthIncome - data.thisMonthSpending;
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         <div className="card">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-2 rounded-lg bg-purple-500/20">
               <DollarSign className="w-4 h-4 text-purple-400" />
             </div>
-            <span className="text-white/60 text-sm">This Month</span>
+            <span className="text-white/60 text-sm">Income</span>
           </div>
           <p className="text-2xl lg:text-3xl font-bold font-tabular">K {data.thisMonthIncome.toLocaleString()}</p>
           {percentChange !== 0 && (
@@ -71,6 +84,19 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
               <span className="text-white/40 text-xs">vs last month</span>
             </div>
           )}
+        </div>
+
+        <div className="card">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="p-2 rounded-lg bg-red-500/20">
+              <ShoppingCart className="w-4 h-4 text-red-400" />
+            </div>
+            <span className="text-white/60 text-sm">Spent</span>
+          </div>
+          <p className="text-2xl lg:text-3xl font-bold font-tabular">K {data.thisMonthSpending.toLocaleString()}</p>
+          <p className={`text-sm mt-2 font-tabular ${netThisMonth >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            Net: K {netThisMonth.toLocaleString()}
+          </p>
         </div>
 
         <div className="card">
@@ -92,26 +118,22 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
             <span className="text-white/60 text-sm">Last Month</span>
           </div>
           <p className="text-2xl lg:text-3xl font-bold font-tabular">K {data.lastMonthIncome.toLocaleString()}</p>
-          <p className="text-white/40 text-sm mt-2">Previous month</p>
+          <p className="text-white/40 text-sm mt-2">Previous month income</p>
         </div>
 
         <div className="card">
           <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 rounded-lg bg-cyan-500/20">
-              <Target className="w-4 h-4 text-cyan-400" />
+            <div className="p-2 rounded-lg bg-orange-500/20">
+              <ShoppingCart className="w-4 h-4 text-orange-400" />
             </div>
-            <span className="text-white/60 text-sm">Avg/Month</span>
+            <span className="text-white/60 text-sm">Last Month Spent</span>
           </div>
-          <p className="text-2xl lg:text-3xl font-bold font-tabular">
-            K{data.monthlyData.length > 0 
-              ? Math.round(data.allTimeIncome / data.monthlyData.length).toLocaleString() 
-              : '0'}
-          </p>
-          <p className="text-white/40 text-sm mt-2">Monthly average</p>
+          <p className="text-2xl lg:text-3xl font-bold font-tabular">K {data.lastMonthSpending.toLocaleString()}</p>
+          <p className="text-white/40 text-sm mt-2">Previous month spending</p>
         </div>
       </div>
 
-      {data.recurringIncome > 0 && data.recurrings && data.recurrings.some(r => r.isActive === 1) && (
+      {data.recurringIncome > 0 && data.recurrings && data.recurrings.some(r => r.isActive) && (
         <div className="card bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -123,9 +145,7 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
                 <p className="text-2xl font-bold text-green-400 font-tabular">K {data.recurringIncome.toLocaleString()}</p>
               </div>
             </div>
-            <Link href="/dashboard/goals" className="text-sm text-green-400 hover:underline">
-              Manage
-            </Link>
+            <Link href="/dashboard/goals" className="text-sm text-green-400 hover:underline">Manage</Link>
           </div>
         </div>
       )}
@@ -148,10 +168,7 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
             </div>
           </div>
           <div className="progress-bar h-3">
-            <div
-              className="progress-fill"
-              style={{ width: `${Math.min(goalProgress, 100)}%` }}
-            />
+            <div className="progress-fill" style={{ width: `${Math.min(goalProgress, 100)}%` }} />
           </div>
           <div className="flex justify-between items-center mt-2">
             <p className="text-white/50 text-sm">{goalProgress.toFixed(0)}% complete</p>
@@ -176,15 +193,7 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
+                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value">
                     {pieData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
@@ -220,24 +229,12 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
                 <AreaChart data={barData}>
                   <defs>
                     <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="#7c3aed" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <XAxis 
-                    dataKey="month" 
-                    stroke="rgba(255,255,255,0.5)" 
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis 
-                    stroke="rgba(255,255,255,0.5)" 
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => `K ${value}`}
-                  />
+                  <XAxis dataKey="month" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `K ${v}`} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1b4b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
                     labelStyle={{ color: '#fff' }}
@@ -251,47 +248,77 @@ export default function DashboardContent({ data }: { data: DashboardData }) {
         )}
       </div>
 
-      <div className="card">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-pink-500"></span>
-            Recent Activity
-          </h3>
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard/income" className="text-sm text-white/50 hover:text-white transition-colors">
-              Manage All
-            </Link>
-            <span className="text-white/10 text-xs">|</span>
-            <Link href="/dashboard/add" className="text-sm text-purple-400 hover:text-purple-300 transition-colors font-medium">
-              + Add Record
-            </Link>
+      <div className="dashboard-charts">
+        <div className="card">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-pink-500"></span>
+              Recent Income
+            </h3>
+            <div className="flex items-center gap-3">
+              <Link href="/dashboard/income" className="text-sm text-white/50 hover:text-white transition-colors">View All</Link>
+              <span className="text-white/10 text-xs">|</span>
+              <Link href="/dashboard/add" className="text-sm text-purple-400 hover:text-purple-300 transition-colors font-medium">+ Add</Link>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {data.recentIncomes.slice(0, 5).map((income) => (
+              <div key={income.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                    <DollarSign className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">{income.source}</p>
+                    <p className="text-xs text-white/50">{format(new Date(income.date), 'MMM d, yyyy')}</p>
+                  </div>
+                </div>
+                <span className="text-green-400 font-semibold font-tabular">+K {income.amount.toLocaleString()}</span>
+              </div>
+            ))}
+            {data.recentIncomes.length === 0 && (
+              <div className="text-center py-6">
+                <p className="text-white/40 mb-3 text-sm">No income yet</p>
+                <Link href="/dashboard/add" className="btn-primary inline-block text-sm py-2 px-4">Add Income</Link>
+              </div>
+            )}
           </div>
         </div>
-        <div className="space-y-2">
-          {data.recentIncomes.slice(0, 8).map((income) => (
-            <div key={income.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-indigo-500/20 flex items-center justify-center">
-                  <DollarSign className="w-5 h-5 text-purple-400" />
+
+        <div className="card">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-500"></span>
+              Recent Spending
+            </h3>
+            <div className="flex items-center gap-3">
+              <Link href="/dashboard/spending" className="text-sm text-white/50 hover:text-white transition-colors">View All</Link>
+              <span className="text-white/10 text-xs">|</span>
+              <Link href="/dashboard/add-spending" className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium">+ Add</Link>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {data.recentSpendings.slice(0, 5).map((spending) => (
+              <div key={spending.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-red-500/20 flex items-center justify-center">
+                    <ShoppingCart className="w-4 h-4 text-red-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">{spending.name}</p>
+                    <p className="text-xs text-white/50">{spending.category || 'Uncategorized'} • {format(new Date(spending.date), 'MMM d, yyyy')}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium">{income.source}</p>
-                  <p className="text-sm text-white/50">
-                    {income.description || income.category || 'No description'} • {format(new Date(income.date), 'MMM d, yyyy')}
-                  </p>
-                </div>
+                <span className="text-red-400 font-semibold font-tabular">-K {spending.amount.toLocaleString()}</span>
               </div>
-              <span className="text-green-400 font-semibold text-lg font-tabular">+K {income.amount.toLocaleString()}</span>
-            </div>
-          ))}
-          {data.recentIncomes.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-white/40 mb-4">No recent activity</p>
-              <Link href="/dashboard/add" className="btn-primary inline-block">
-                Add Your First Income
-              </Link>
-            </div>
-          )}
+            ))}
+            {data.recentSpendings.length === 0 && (
+              <div className="text-center py-6">
+                <p className="text-white/40 mb-3 text-sm">No spending yet</p>
+                <Link href="/dashboard/add-spending" className="btn-primary inline-block text-sm py-2 px-4">Add Spending</Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

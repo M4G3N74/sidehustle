@@ -32,6 +32,8 @@ export const QUERIES = {
         lastMonthIncome
         allTimeIncome
         recurringIncome
+        thisMonthSpending
+        lastMonthSpending
         incomeBySource {
           source
           amount
@@ -43,6 +45,14 @@ export const QUERIES = {
         recentIncomes {
           id
           source
+          amount
+          category
+          description
+          date
+        }
+        recentSpendings {
+          id
+          name
           amount
           category
           description
@@ -109,9 +119,20 @@ export const QUERIES = {
           description
           date
         }
+        spendings {
+          id
+          name
+          amount
+          category
+          description
+          date
+        }
         thisMonthIncome
         lastMonthIncome
         allTimeIncome
+        thisMonthSpending
+        lastMonthSpending
+        allTimeSpending
         incomeBySource {
           source
           amount
@@ -119,6 +140,28 @@ export const QUERIES = {
         user {
           name
           email
+        }
+      }
+    }
+  `,
+
+  SPENDING: `
+    query Spending {
+      spending {
+        thisMonthSpending
+        lastMonthSpending
+        allTimeSpending
+        recentSpendings {
+          id
+          name
+          amount
+          category
+          description
+          date
+        }
+        spendingByCategory {
+          source
+          amount
         }
       }
     }
@@ -198,6 +241,24 @@ export const MUTATIONS = {
   DELETE_RECURRING: `
     mutation DeleteRecurring($id: Int!) {
       deleteRecurring(id: $id)
+    }
+  `,
+
+  ADD_SPENDING: `
+    mutation AddSpending($name: String!, $amount: Float!, $category: String, $description: String, $date: String!) {
+      addSpending(name: $name, amount: $amount, category: $category, description: $description, date: $date)
+    }
+  `,
+
+  UPDATE_SPENDING: `
+    mutation UpdateSpending($id: Int!, $name: String!, $amount: Float!, $category: String, $description: String, $date: String!) {
+      updateSpending(id: $id, name: $name, amount: $amount, category: $category, description: $description, date: $date)
+    }
+  `,
+
+  DELETE_SPENDING: `
+    mutation DeleteSpending($id: Int!) {
+      deleteSpending(id: $id)
     }
   `,
 

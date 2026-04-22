@@ -18,6 +18,9 @@ export default function DashboardPage() {
       router.push('/login');
     } else if (status === 'authenticated') {
       fetchData();
+      const onFocus = () => fetchData();
+      window.addEventListener('focus', onFocus);
+      return () => window.removeEventListener('focus', onFocus);
     }
   }, [status, router]);
 

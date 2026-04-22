@@ -55,7 +55,7 @@ export default function AddIncomePage() {
       });
       setSuccess(true);
       toast.success('Income saved successfully');
-      setTimeout(() => router.push('/dashboard'), 1000);
+      setTimeout(() => { router.push('/dashboard'); router.refresh(); }, 1000);
     } catch (error) {
       toast.error('Failed to save income');
     }

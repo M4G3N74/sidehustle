@@ -4,7 +4,7 @@ import { signOut, useSession } from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Home, PlusCircle, Target, LogOut, FileDown, LayoutDashboard, Menu, X, User } from 'lucide-react';
+import { Home, PlusCircle, Target, LogOut, FileDown, LayoutDashboard, Menu, X, User, List, ShoppingCart } from 'lucide-react';
 import { useState } from 'react';
 
 import { Users } from 'lucide-react';
@@ -13,6 +13,8 @@ const getNavItems = (role: string) => {
   const items = [
     { href: '/dashboard', icon: Home, label: 'Home' },
     { href: '/dashboard/add', icon: PlusCircle, label: 'Add' },
+    { href: '/dashboard/income', icon: List, label: 'Income' },
+    { href: '/dashboard/spending', icon: ShoppingCart, label: 'Spending' },
     { href: '/dashboard/goals', icon: Target, label: 'Goals' }
   ];
   
@@ -28,6 +30,9 @@ const getSidebarItems = (role: string) => {
   const items = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { href: '/dashboard/add', icon: PlusCircle, label: 'Add Income' },
+    { href: '/dashboard/income', icon: List, label: 'Income' },
+    { href: '/dashboard/add-spending', icon: PlusCircle, label: 'Add Spending' },
+    { href: '/dashboard/spending', icon: ShoppingCart, label: 'Spending' },
     { href: '/dashboard/goals', icon: Target, label: 'Goals' },
     { href: '/dashboard/export', icon: FileDown, label: 'Export PDF' }
   ];

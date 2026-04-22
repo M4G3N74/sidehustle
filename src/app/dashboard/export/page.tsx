@@ -17,17 +17,25 @@ interface Income {
   date: string;
 }
 
-interface SourceBreakdown {
-  source: string;
+interface Spending {
+  id: number;
+  name: string;
   amount: number;
+  category: string | null;
+  description: string | null;
+  date: string;
 }
 
 interface ExportData {
   incomes: Income[];
+  spendings: Spending[];
   thisMonthIncome: number;
   lastMonthIncome: number;
   allTimeIncome: number;
-  incomeBySource: SourceBreakdown[];
+  thisMonthSpending: number;
+  lastMonthSpending: number;
+  allTimeSpending: number;
+  incomeBySource: { source: string; amount: number }[];
   user: { name: string | null; email: string | null } | null;
 }
 
@@ -39,10 +47,7 @@ export default function ExportPage() {
 
   useEffect(() => {
     graphqlRequest<{ export: ExportData }>(QUERIES.EXPORT)
-      .then(result => {
-        setData(result.export);
-        setLoading(false);
-      });
+      .then(result => { setData(result.export); setLoading(false); });
   }, []);
 
   const generatePDF = async () => {
@@ -55,84 +60,131 @@ export default function ExportPage() {
     try {
       const img = new window.Image();
       img.src = '/logo.png';
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-      });
+      await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; });
       doc.addImage(img, 'PNG', 14, 12, 10, 10);
-      
       doc.setFontSize(20);
       doc.setTextColor(124, 58, 237);
       doc.text('streethustler', 28, 20);
-    } catch (e) {
+    } catch {
       doc.setFontSize(20);
       doc.setTextColor(124, 58, 237);
       doc.text('streethustler', 14, 22);
     }
-    
+
     doc.setFontSize(12);
     doc.setTextColor(100);
-    doc.text(`Income Report - ${format(now, 'MMMM yyyy')}`, 14, 32);
+    doc.text(`Financial Report - ${format(now, 'MMMM yyyy')}`, 14, 32);
 
     if (data.user) {
       doc.setFontSize(10);
-      doc.setTextColor(100);
       doc.text(`Prepared for: ${data.user.name || data.user.email || 'User'}`, 14, 42);
       doc.text(`Generated: ${format(now, 'PPpp')}`, 14, 48);
     }
 
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+
     let filteredIncomes = data.incomes;
+    let filteredSpendings = data.spendings;
     let periodLabel = '';
-    let total = 0;
+    let totalIncome = 0;
+    let totalSpending = 0;
 
     if (period === 'this_month') {
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       filteredIncomes = data.incomes.filter(i => new Date(i.date) >= startOfMonth);
+      filteredSpendings = data.spendings.filter(s => new Date(s.date) >= startOfMonth);
       periodLabel = 'This Month';
-      total = data.thisMonthIncome;
+      totalIncome = data.thisMonthIncome;
+      totalSpending = data.thisMonthSpending;
     } else if (period === 'last_month') {
-      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-      filteredIncomes = data.incomes.filter(i => {
-        const d = new Date(i.date);
-        return d >= startOfLastMonth && d <= endOfLastMonth;
-      });
+      filteredIncomes = data.incomes.filter(i => { const d = new Date(i.date); return d >= startOfLastMonth && d <= endOfLastMonth; });
+      filteredSpendings = data.spendings.filter(s => { const d = new Date(s.date); return d >= startOfLastMonth && d <= endOfLastMonth; });
       periodLabel = 'Last Month';
-      total = data.lastMonthIncome;
+      totalIncome = data.lastMonthIncome;
+      totalSpending = data.lastMonthSpending;
     } else {
       periodLabel = 'All Time';
-      total = data.allTimeIncome;
+      totalIncome = data.allTimeIncome;
+      totalSpending = data.allTimeSpending;
     }
 
-    doc.setFontSize(14);
+    const net = totalIncome - totalSpending;
+    const baseY = data.user ? 60 : 50;
+
+    // Summary section
+    doc.setFontSize(13);
     doc.setTextColor(0);
-    doc.text(periodLabel, 14, data.user ? 60 : 50);
-
-    doc.setFontSize(24);
-    doc.text(`ZMW ${total.toLocaleString()}`, 14, data.user ? 70 : 58);
-
-    const incomeRows = filteredIncomes.map(i => [
-      format(new Date(i.date), 'MMM dd'),
-      i.source,
-      i.category || '-',
-      i.description || '-',
-      `ZMW ${i.amount.toLocaleString()}`
-    ]);
+    doc.text(`${periodLabel} Summary`, 14, baseY);
 
     autoTable(doc, {
-      startY: data.user ? 82 : 70,
+      startY: baseY + 4,
+      body: [
+        ['Total Income', `ZMW ${totalIncome.toLocaleString()}`],
+        ['Total Spending', `ZMW ${totalSpending.toLocaleString()}`],
+        ['Net Income', `ZMW ${net.toLocaleString()}`],
+      ],
+      theme: 'plain',
+      styles: { fontSize: 11 },
+      columnStyles: {
+        0: { textColor: [100, 100, 100] },
+        1: { fontStyle: 'bold', halign: 'right' },
+      },
+    });
+
+    const afterSummary = (doc as any).lastAutoTable.finalY + 8;
+
+    // Income table
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.text('Income', 14, afterSummary);
+
+    autoTable(doc, {
+      startY: afterSummary + 4,
       head: [['Date', 'Source', 'Category', 'Description', 'Amount']],
-      body: incomeRows,
+      body: filteredIncomes.map(i => [
+        format(new Date(i.date), 'MMM dd'),
+        i.source,
+        i.category || '-',
+        i.description || '-',
+        `ZMW ${i.amount.toLocaleString()}`,
+      ]),
       theme: 'striped',
       headStyles: { fillColor: [124, 58, 237], textColor: 255 },
       styles: { fontSize: 9 },
+      foot: [['', '', '', 'Total', `ZMW ${totalIncome.toLocaleString()}`]],
+      footStyles: { fontStyle: 'bold', fillColor: [240, 240, 255] },
+    });
+
+    const afterIncome = (doc as any).lastAutoTable.finalY + 8;
+
+    // Spending table
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.text('Spending', 14, afterIncome);
+
+    autoTable(doc, {
+      startY: afterIncome + 4,
+      head: [['Date', 'Name', 'Category', 'Description', 'Amount']],
+      body: filteredSpendings.map(s => [
+        format(new Date(s.date), 'MMM dd'),
+        s.name,
+        s.category || '-',
+        s.description || '-',
+        `ZMW ${s.amount.toLocaleString()}`,
+      ]),
+      theme: 'striped',
+      headStyles: { fillColor: [220, 38, 38], textColor: 255 },
+      styles: { fontSize: 9 },
+      foot: [['', '', '', 'Total', `ZMW ${totalSpending.toLocaleString()}`]],
+      footStyles: { fontStyle: 'bold', fillColor: [255, 240, 240] },
     });
 
     doc.setFontSize(10);
     doc.setTextColor(150);
     doc.text(`Generated on ${format(now, 'PPpp')}`, 14, (doc as any).internal.pageSize.height - 10);
 
-    doc.save(`streethustler-${period}-${format(now, 'yyyy-MM-dd')}.pdf`);
+    doc.save(`${data.user?.name || data.user?.email || 'report'}-${format(now, 'yyyy-MM-dd-HHmm')}.pdf`);
     setGenerating(false);
   };
 
@@ -143,6 +195,10 @@ export default function ExportPage() {
       </div>
     );
   }
+
+  const incomeAmt = period === 'this_month' ? data?.thisMonthIncome : period === 'last_month' ? data?.lastMonthIncome : data?.allTimeIncome;
+  const spendingAmt = period === 'this_month' ? data?.thisMonthSpending : period === 'last_month' ? data?.lastMonthSpending : data?.allTimeSpending;
+  const net = (incomeAmt || 0) - (spendingAmt || 0);
 
   return (
     <div className="space-y-6">
@@ -157,9 +213,9 @@ export default function ExportPage() {
         <h2 className="font-semibold mb-4">Select Period</h2>
         <div className="space-y-3">
           {[
-            { value: 'this_month', label: 'This Month', amount: data?.thisMonthIncome },
-            { value: 'last_month', label: 'Last Month', amount: data?.lastMonthIncome },
-            { value: 'all_time', label: 'All Time', amount: data?.allTimeIncome },
+            { value: 'this_month', label: 'This Month', income: data?.thisMonthIncome, spending: data?.thisMonthSpending },
+            { value: 'last_month', label: 'Last Month', income: data?.lastMonthIncome, spending: data?.lastMonthSpending },
+            { value: 'all_time', label: 'All Time', income: data?.allTimeIncome, spending: data?.allTimeSpending },
           ].map(opt => (
             <label
               key={opt.value}
@@ -168,39 +224,33 @@ export default function ExportPage() {
               } border`}
             >
               <div className="flex items-center gap-3">
-                <input
-                  type="radio"
-                  name="period"
-                  value={opt.value}
-                  checked={period === opt.value}
-                  onChange={(e) => setPeriod(e.target.value as any)}
-                  className="sr-only"
-                />
-                <div className={`w-4 h-4 rounded-full border-2 ${
-                  period === opt.value ? 'border-purple-500 bg-purple-500' : 'border-white/30'
-                }`}>
-                  {period === opt.value && <div className="w-full h-full rounded-full bg-white scale-50" />}
+                <input type="radio" name="period" value={opt.value} checked={period === opt.value} onChange={e => setPeriod(e.target.value as any)} className="sr-only" />
+                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${period === opt.value ? 'border-purple-500 bg-purple-500' : 'border-white/30'}`}>
+                  {period === opt.value && <div className="w-2 h-2 rounded-full bg-white" />}
                 </div>
                 <span>{opt.label}</span>
               </div>
-              <span className="font-semibold font-tabular">ZMW {(opt.amount || 0).toLocaleString()}</span>
+              <div className="text-right">
+                <p className="text-green-400 text-sm font-tabular">+ZMW {(opt.income || 0).toLocaleString()}</p>
+                <p className="text-red-400 text-sm font-tabular">-ZMW {(opt.spending || 0).toLocaleString()}</p>
+              </div>
             </label>
           ))}
         </div>
       </div>
 
-      <div className="card p-5">
-        <h2 className="font-semibold mb-4">Income by Source</h2>
-        <div className="space-y-2">
-          {data?.incomeBySource.map((source) => (
-            <div key={source.source} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
-              <span className="text-white/70">{source.source}</span>
-              <span className="font-medium font-tabular">ZMW {source.amount.toLocaleString()}</span>
-            </div>
-          ))}
-          {data?.incomeBySource.length === 0 && (
-            <p className="text-white/40 text-center py-4">No data to export</p>
-          )}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="card text-center">
+          <p className="text-white/50 text-xs mb-1">Income</p>
+          <p className="text-green-400 font-bold font-tabular">ZMW {(incomeAmt || 0).toLocaleString()}</p>
+        </div>
+        <div className="card text-center">
+          <p className="text-white/50 text-xs mb-1">Spending</p>
+          <p className="text-red-400 font-bold font-tabular">ZMW {(spendingAmt || 0).toLocaleString()}</p>
+        </div>
+        <div className="card text-center">
+          <p className="text-white/50 text-xs mb-1">Net Income</p>
+          <p className={`font-bold font-tabular ${net >= 0 ? 'text-green-400' : 'text-red-400'}`}>ZMW {net.toLocaleString()}</p>
         </div>
       </div>
 

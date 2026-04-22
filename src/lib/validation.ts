@@ -83,6 +83,27 @@ export function validateIncomeInput(args: {
   return { valid: true };
 }
 
+// Validate spending input
+export function validateSpendingInput(args: {
+  name: string;
+  amount: number;
+  date: string;
+  category?: string;
+  description?: string;
+}): ValidationResult {
+  const checks = [
+    validateStringLength(args.name, 'Name', 1, 100),
+    validatePositiveNumber(args.amount, 'Amount'),
+    validateDate(args.date, 'Date'),
+  ];
+  if (args.category) checks.push(validateStringLength(args.category, 'Category', 1, 50));
+  if (args.description) checks.push(validateStringLength(args.description, 'Description', 1, 500));
+  for (const check of checks) {
+    if (!check.valid) return check;
+  }
+  return { valid: true };
+}
+
 // Validate goal input
 export function validateGoalInput(args: {
   title: string;

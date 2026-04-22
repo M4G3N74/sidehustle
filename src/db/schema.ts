@@ -61,6 +61,17 @@ export const goals = pgTable('goals', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+export const spendings = pgTable('spendings', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id),
+  name: text('name').notNull(),
+  amount: real('amount').notNull(),
+  category: text('category'),
+  description: text('description'),
+  date: timestamp('date').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 export const recurrings = pgTable('recurrings', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => users.id),
