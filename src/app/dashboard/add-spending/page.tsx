@@ -6,6 +6,7 @@ import { ArrowLeft, Check, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { graphqlRequest, MUTATIONS } from '@/lib/graphql';
 import { useToast } from '@/components/ToastContext';
+import { useDashboard } from '@/components/DashboardContext';
 
 const categories = [
   'Food & Drink',
@@ -22,6 +23,7 @@ const categories = [
 export default function AddSpendingPage() {
   const router = useRouter();
   const toast = useToast();
+  const { optimisticAddSpending } = useDashboard();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -43,6 +45,7 @@ export default function AddSpendingPage() {
         description: (formData.get('description') as string)?.trim() || undefined,
         date,
       });
+      optimisticAddSpending({ id: Date.now(), name, amount, category: (formData.get('category') as string) || null, description: (formData.get('description') as string)?.trim() || null, date: new Date(date).toISOString() });
       setSuccess(true);
       toast.success('Spending saved successfully');
       setTimeout(() => { router.push('/dashboard/spending'); router.refresh(); }, 1000);

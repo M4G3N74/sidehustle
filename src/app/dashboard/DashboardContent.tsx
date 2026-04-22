@@ -5,51 +5,7 @@ import { TrendingUp, TrendingDown, DollarSign, Target, Wallet, Clock, Repeat, Sh
 import Link from 'next/link';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis } from 'recharts';
 
-interface Income {
-  id: number;
-  source: string;
-  amount: number;
-  category: string | null;
-  description: string | null;
-  date: Date;
-}
-
-interface Spending {
-  id: number;
-  name: string;
-  amount: number;
-  category: string | null;
-  description: string | null;
-  date: Date;
-}
-
-interface Goal {
-  id: number;
-  title: string;
-  targetAmount: number;
-}
-
-interface Recurring {
-  id: number;
-  name: string;
-  amount: number;
-  isActive: number | null;
-}
-
-interface DashboardData {
-  thisMonthIncome: number;
-  lastMonthIncome: number;
-  allTimeIncome: number;
-  thisMonthSpending: number;
-  lastMonthSpending: number;
-  recentIncomes: Income[];
-  recentSpendings: Spending[];
-  currentGoal: Goal | null | undefined;
-  incomeBySource: { source: string; amount: number }[];
-  monthlyData: { source: string; amount: number }[];
-  recurringIncome: number;
-  recurrings: Recurring[];
-}
+import { type DashboardData } from '@/components/DashboardContext';
 
 const COLORS = ['#7c3aed', '#a78bfa', '#6366f1', '#8b5cf6', '#c084fc', '#ddd6fe'];
 

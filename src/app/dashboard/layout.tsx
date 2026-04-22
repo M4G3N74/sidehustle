@@ -45,6 +45,8 @@ const getSidebarItems = (role: string) => {
   return items;
 };
 
+import { DashboardProvider } from '@/components/DashboardContext';
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
   const pathname = usePathname();
@@ -181,7 +183,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main Content */}
       <main className="lg:ml-64 p-4 pt-20 lg:pt-8 pb-24 lg:pb-8 min-h-screen page-fade-in">
         <div className="max-w-6xl mx-auto">
-          {children}
+          <DashboardProvider>
+            {children}
+          </DashboardProvider>
         </div>
       </main>
 

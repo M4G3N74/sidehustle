@@ -6,6 +6,7 @@ import { ArrowLeft, Check, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 import { graphqlRequest, MUTATIONS } from '@/lib/graphql';
 import { useToast } from '@/components/ToastContext';
+import { useDashboard } from '@/components/DashboardContext';
 
 const categories = [
   'Freelance',
@@ -20,6 +21,7 @@ const categories = [
 export default function AddIncomePage() {
   const router = useRouter();
   const toast = useToast();
+  const { optimisticAddIncome } = useDashboard();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -53,6 +55,7 @@ export default function AddIncomePage() {
         description: (formData.get('description') as string)?.trim() || undefined,
         date,
       });
+      optimisticAddIncome({ id: Date.now(), source, amount, category: (formData.get('category') as string) || null, description: (formData.get('description') as string)?.trim() || null, date: new Date(date).toISOString() });
       setSuccess(true);
       toast.success('Income saved successfully');
       setTimeout(() => { router.push('/dashboard'); router.refresh(); }, 1000);

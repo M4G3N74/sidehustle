@@ -14,6 +14,8 @@ import {
   validateStringLength,
 } from '@/lib/validation';
 import { checkRateLimit, RATE_LIMITS, getClientIp } from '@/lib/rate-limit';
+import { resolvePersistedQuery } from '@/lib/persisted-queries';
+import { encryptResponse } from '@/lib/crypto';
 
 const typeDefs = `#graphql
   type User {
@@ -541,10 +543,27 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const response = await server.executeOperation({ query: body.query, variables: body.variables });
+  
+  // Support both operationId (persisted) and raw query (dev only)
+  let query: string;
+  if (body.operationId) {
+    const resolved = resolvePersistedQuery(body.operationId);
+    if (!resolved) {
+      return NextResponse.json({ errors: [{ message: 'Unknown operation' }] }, { status: 400 });
+    }
+    query = resolved;
+  } else if (body.query && process.env.NODE_ENV !== 'production') {
+    // Allow raw queries in dev for introspection/debugging
+    query = body.query;
+  } else {
+    return NextResponse.json({ errors: [{ message: 'Invalid request' }] }, { status: 400 });
+  }
+
+  const response = await server.executeOperation({ query, variables: body.variables });
 
   if (response.body.kind === 'single') {
-    return NextResponse.json(response.body.singleResult);
+    const encrypted = await encryptResponse(response.body.singleResult);
+    return NextResponse.json({ d: encrypted });
   }
 
   return NextResponse.json({ errors: [{ message: 'Invalid request' }] });

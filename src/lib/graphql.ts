@@ -1,27 +1,48 @@
+import { createHash } from 'crypto';
+
+import { decryptResponse } from '@/lib/crypto';
+
 const getBaseUrl = () => {
   if (typeof window !== 'undefined') return '';
   if (process.env.NEXTAUTH_URL) return process.env.NEXTAUTH_URL;
   return 'http://localhost:3000';
 };
 
+function hashQuery(query: string): string {
+  // Use SubtleCrypto in browser, crypto in Node
+  // For simplicity we pre-compute and inline — but we need sync hash client-side.
+  // We use a simple djb2 for the browser and sha256 server-side via the same trim.
+  // Actually: we just send the sha256 hex which matches what persisted-queries.ts computes.
+  return query.trim();
+}
+
 export async function graphqlRequest<T>(query: string, variables?: Record<string, any>): Promise<T> {
+  // Compute sha256 of the query to use as operationId
+  let operationId: string;
+  if (typeof window !== 'undefined' && window.crypto?.subtle) {
+    const encoded = new TextEncoder().encode(query.trim());
+    const hashBuffer = await window.crypto.subtle.digest('SHA-256', encoded);
+    operationId = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+  } else {
+    const { createHash } = await import('crypto');
+    operationId = createHash('sha256').update(query.trim()).digest('hex');
+  }
+
   const res = await fetch(`${getBaseUrl()}/api/graphql`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ query, variables }),
+    body: JSON.stringify({ operationId, variables }),
   });
 
   const json = await res.json();
-
-  if (json.errors) {
-    console.error('GraphQL errors:', json.errors);
-    throw new Error(json.errors[0].message);
+  // Decrypt the response payload
+  const decrypted = json.d ? await decryptResponse<{ data?: T; errors?: any[] }>(json.d) : json;
+  if (decrypted.errors) {
+    console.error('GraphQL errors:', decrypted.errors);
+    throw new Error(decrypted.errors[0].message);
   }
-
-  return json.data;
+  return decrypted.data as T;
 }
 
 export const QUERIES = {
